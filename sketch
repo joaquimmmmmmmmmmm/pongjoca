@@ -1,0 +1,95 @@
+function setup() {
+  createCanvas(400, 400);
+}
+
+function draw() {
+  background(220);
+}let ball;
+let leftPaddle;
+let rightPaddle;
+
+function setup() {
+  createCanvas(800, 400);
+  ball = new Ball();
+  leftPaddle = new Paddle(true);
+  rightPaddle = new Paddle(false);
+}
+
+function draw() {
+  background(0);
+  
+  ball.update();
+  ball.show();
+  ball.checkPaddle(leftPaddle);
+  ball.checkPaddle(rightPaddle);
+  
+  leftPaddle.show();
+  leftPaddle.update();
+  
+  rightPaddle.show();
+  rightPaddle.update();
+}
+
+class Ball {
+  constructor() {
+    this.position = createVector(width / 2, height / 2);
+    this.velocity = createVector(5, 5);
+    this.diameter = 20;
+  }
+  
+  update() {
+    this.position.add(this.velocity);
+    
+    // Colisão com o teto e o chão
+    if (this.position.y < 0 || this.position.y > height) {
+      this.velocity.y *= -1;
+    }
+    
+    // Resetar a bola se passar pelas palhetas
+    if (this.position.x < 0 || this.position.x > width) {
+      this.position.set(width / 2, height / 2);
+      this.velocity.mult(random([-1, 1]), random([-1, 1]));
+    }
+  }
+  
+  show() {
+    fill(255);
+    ellipse(this.position.x, this.position.y, this.diameter);
+  }
+  
+  checkPaddle(paddle) {
+    if (this.position.x > paddle.position.x && this.position.x < paddle.position.x + paddle.width &&
+        this.position.y > paddle.position.y && this.position.y < paddle.position.y + paddle.height) {
+      this.velocity.x *= -1;
+    }
+  }
+}
+
+class Paddle {
+  constructor(isLeft) {
+    this.width = 10;
+    this.height = 80;
+    this.position = createVector(isLeft ? 0 : width - this.width, height / 2 - this.height / 2);
+    this.speed = 10;
+  }
+  
+  update() {
+    if (keyIsDown(87) && this.position.y > 0) { // W key
+      this.position.y -= this.speed;
+    }
+    if (keyIsDown(83) && this.position.y < height - this.height) { // S key
+      this.position.y += this.speed;
+    }
+    if (keyIsDown(UP_ARROW) && !this.isLeft && this.position.y > 0) {
+      this.position.y -= this.speed;
+    }
+    if (keyIsDown(DOWN_ARROW) && !this.isLeft && this.position.y < height - this.height) {
+      this.position.y += this.speed;
+    }
+  }
+  
+  show() {
+    fill(255);
+    rect(this.position.x, this.position.y, this.width, this.height);
+  }
+}
